@@ -15,9 +15,7 @@
 ################################################################################
 #
 load("@io_bazel_rules_go//go:def.bzl", "go_repository")
-load("@com_github_istio_mixer//:adapter_author_deps.bzl", "mixer_adapter_repositories")
 load("@com_github_istio_mixer//:x_tools_imports.bzl", "go_x_tools_imports_repositories")
-load("@com_github_istio_mixer//:googleapis.bzl", "go_googleapis_repositories")
 load("@com_github_istio_mixer//:istio_api.bzl", "go_istio_api_repositories")
 
 # This function should be used by others to use mock mixer.
@@ -48,10 +46,21 @@ load("@com_github_istio_mixer//:istio_api.bzl", "go_istio_api_repositories")
 # mixer_test_repositories(False)
 #
 def mixer_test_repositories(use_local_api=False):
-    mixer_adapter_repositories()
     go_x_tools_imports_repositories()
     go_istio_api_repositories(use_local_api)
-    go_googleapis_repositories()
+
+    native.git_repository(
+        name = "org_pubref_rules_protobuf",
+        commit = "ff3b7e7963daa7cb3b42f8936bc11eda4b960926",  # Oct 03, 2017 (Updating External Import Paths)
+        remote = "https://github.com/pubref/rules_protobuf",
+    )
+
+    go_repository(
+        name = "com_github_gogo_protobuf",
+        commit = "100ba4e885062801d56799d78530b73b178a78f3",  # Mar 7, 2017 (match pubref dep)
+        importpath = "github.com/gogo/protobuf",
+        build_file_proto_mode = "legacy",
+    )
 
     go_repository(
         name = "org_golang_x_text",
